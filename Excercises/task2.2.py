@@ -100,20 +100,23 @@ print(samples)
 print(minval)
 print(maxval)
 while True:
-    text = int(((samples[y] - minval) / difference) * 100)
-    linelenght = text * 1.04 #1.04 is the remaining pixels
-    if text != 100:
-        text = f"{str(text)} "
-    
-    if y >= 8:
-        oled.scroll(0, 8)
-        oled.fill_rect(0, 0, 128, 8, 0)
-        oled.text(str(text), 0, 0, 1)
-        oled.fill_rect(24, 0, int(linelenght), 4, 1)
-        y += 1
-    else:
-        oled.text(str(text), 0, 56 - y * 8, 1)
-        oled.fill_rect(24, 56 - y * 8, int(linelenght), 4, 1)
-        y += 1
+    try:
+        text = int(((samples[y] - minval) / difference) * 100)
+        linelenght = text * 1.04 #1.04 is the remaining pixels
+        if text != 100:
+            text = f"{str(text)} "
+        
+        if y >= 8:
+            oled.scroll(0, 8)
+            oled.fill_rect(0, 0, 128, 8, 0)
+            oled.text(str(text), 0, 0, 1)
+            oled.fill_rect(24, 0, int(linelenght), 4, 1)
+            y += 1
+        else:
+            oled.text(str(text), 0, 56 - y * 8, 1)
+            oled.fill_rect(24, 56 - y * 8, int(linelenght), 4, 1)
+            y += 1
 
-    oled.show()
+        oled.show()
+    except:
+        break
