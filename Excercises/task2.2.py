@@ -106,13 +106,14 @@ while True:
         text = f"{str(text)} "
     
     if y >= 8:
-        oled.scroll(0, -8)
-        oled.fill_rect(0, 56, 128, 8, 0)
-        oled.text(str(text), 0, 56, 1)
-        oled.fill_rect(24, 56, int(linelenght), 4, 1)
+        oled.scroll(0, 8)
+        oled.fill_rect(0, 0, 128, 8, 0)
+        oled.text(str(text), 0, 0, 1)
+        oled.fill_rect(24, 0, int(linelenght), 4, 1)
         y += 1
     else:
-        oled.text(str(text), 0, y * 8, 1)
+        oled.text(str(text), 0, 56 - y * 8, 1)
+        oled.fill_rect(24, 56 - y * 8, int(linelenght), 4, 1)
         y += 1
 
     oled.show()
