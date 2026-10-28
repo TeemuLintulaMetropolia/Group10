@@ -1,0 +1,11 @@
+# Ignore a specific file
+config.json
+
+# Ignore an entire folder and everything inside it
+node_modules/
+venv/
+
+# Ignore all files with a specific extension
+*.log
+*.tmp
+.DS_Store
