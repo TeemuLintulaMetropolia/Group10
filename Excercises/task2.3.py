@@ -1,20 +1,31 @@
 from filefifo import Filefifo
 
 fifo = Filefifo(10, name = 'sinewave_250Hz_03.txt', repeat = False)
-y1 = 0
-kprev = 0
 peaks = []
 samples = []
+threshold = 0
 
+def calculate_threshold(samples):
+    maxval = 0
+    minval = 0
+    for sample in samples:
+        if maxval == 0:
+            maxval = sample
+            minval = sample
+        if maxval < sample:
+            maxval = sample
+        elif minval > sample:
+            minval = sample
+        
+    threshold = maxval - minval * 0.75
+    print("threshold:", threshold)
+    return threshold
+    
 class Sample:
     def __init__ (self, value, time, index):
         self.value = value
         self.time = time
         self.index = index
-
-def calculateSlop(x1, x2, y1, y2):
-    k = (y2 - y1)/(x2 - x1)
-    return k
 
 samplediffs = []
 timediffs = []
@@ -48,22 +59,20 @@ def calculatePPI(peaks):
     return frequency
 
 
-i = 0
+
 while True:
     try:
         data = fifo.get()
     except:
         break
-    if i > 0:
-        k = calculateSlop(i - 1, i, y1, data)
-        if (kprev >= 0 and k < 0):
-            #We found the peak
-            peak = Sample(y1, (i -1) * 0.004, i -1)
-            peaks.append(peak)
-            print("peak:", str(peak.value), str(peak.time) + "s")
-        kprev = k
+        
     samples.append(data)
-    y1 = data
+threshold = calculate_threshold(samples)
+i = 0
+for sample in samples:
+    if samples[i -1] < threshold and sample > threshold:
+        print("peak:", sample)
+        peaks.append(Sample(sample, i * 0.004, i))
     i += 1
 
 print()
