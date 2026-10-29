@@ -10,7 +10,6 @@ class Button:
 
             while self.pin() == False:
                 time.sleep_ms(2)
-                None
             return True
         else:
             return False
