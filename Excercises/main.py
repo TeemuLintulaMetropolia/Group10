@@ -8,9 +8,9 @@ import task2_3
 
 import time
 
-sw0 = Pin(7, Pin.IN, Pin.PULL_UP)
-sw1 = Pin(8, Pin.IN, Pin.PULL_UP)
-sw2 = Pin(9, Pin.IN, Pin.PULL_UP)
+sw0 = Button(7)
+sw1 = Button(8)
+sw2 = Button(9)
 i2c = I2C(1, scl=Pin(15), sda=Pin(14), freq=400000)
 oled = SSD1306_I2C(128,64, i2c)
 
@@ -29,19 +29,20 @@ def printoled(selectedprogram):
 
 printoled(1)
 while True:
-    if sw1() == False:
+    sw1.checkRelease()
+    if sw1.checkRelease():
         if selectedprogram == 1:
             task2_1.run_program()
         elif selectedprogram == 2:
             task2_2.run_program()
         elif selectedprogram == 3:
             task2_3.run_program()
-    if sw2() == False:
+    if sw0.checkRelease():
         selectedprogram += 1
         if selectedprogram > 3:
             selectedprogram = 1
         printoled(selectedprogram)
-    if sw0() == False:
+    if sw2.checkRelease():
         selectedprogram -= 1
         if selectedprogram < 1:
             selectedprogram = 3
