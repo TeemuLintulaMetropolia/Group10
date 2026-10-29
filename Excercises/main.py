@@ -1,6 +1,7 @@
 #main.py for task 2.1
 from machine import Pin, I2C
 from ssd1306 import SSD1306_I2C
+from ButtonClass import Button
 import task2_1
 import task2_2
 import task2_3
