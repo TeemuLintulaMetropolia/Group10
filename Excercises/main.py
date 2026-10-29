@@ -27,7 +27,7 @@ def printoled(selectedprogram):
     oled.text("to cycle", 34, 52, 8)
     oled.show()
 
-printoled(1)
+printoled(selectedprogram)
 while True:
     sw1.checkRelease()
     if sw1.checkRelease():
@@ -47,5 +47,3 @@ while True:
         if selectedprogram < 1:
             selectedprogram = 3
         printoled(selectedprogram)
-
-    time.sleep(0.5)

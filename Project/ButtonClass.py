@@ -9,7 +9,7 @@ class Button:
         if self.pin() == False:
 
             while self.pin() == False:
-                #Waiting for release
+                time.sleep_ms(2)
                 None
             return True
         else:
