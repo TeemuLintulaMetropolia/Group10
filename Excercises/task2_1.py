@@ -57,7 +57,7 @@ def run_program():
             break
         if i > 0:
             k = calculateSlop(i - 1, i, y1, data)
-            if (kprev >= 0 and k < 0):
+            if (kprev > 0 and k <= 0):
                 #We found the peak
                 peak = Sample(y1, (i -1) * 0.004, i -1)
                 peaks.append(peak)
