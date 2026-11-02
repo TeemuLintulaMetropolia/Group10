@@ -17,7 +17,7 @@ def run_program():
             elif minval > sample:
                 minval = sample
             
-        threshold = (maxval - minval) * 1.25
+        threshold = ((maxval + minval)/2) + minval*0.2
         print("threshold:", threshold)
         return threshold
         
@@ -97,3 +97,4 @@ def run_program():
 
     oled.text(f"freq: {frequency:.4f}Hz",0,y,1)
     oled.show()
+run_program()
