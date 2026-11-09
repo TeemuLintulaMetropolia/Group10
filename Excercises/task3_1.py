@@ -27,9 +27,10 @@ class Button_handler:
     def handler(self, pin):
         now = time.ticks_ms()
         if time.ticks_diff(now, self.past_click) > self.delay:
-            self.fifo.put(1)
-        self.past_click = now
-
+            if pin.value()== 0:
+                self.past_click = now
+                self.fifo.put(1)
+        
 
 button = Pin(12, mode = Pin.IN, pull = Pin.PULL_UP)
 my_button = Button_handler(22)
@@ -53,8 +54,3 @@ while True:
             if brightness > 100:
                 brightness = 100
             my_button.led.brightness(brightness)
-            
-    
-        
-
-
