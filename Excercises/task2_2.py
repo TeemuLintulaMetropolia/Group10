@@ -121,3 +121,4 @@ def run_program():
             oled.show()
         except:
             break
+run_program()
