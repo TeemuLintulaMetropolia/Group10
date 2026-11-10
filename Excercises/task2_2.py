@@ -3,10 +3,11 @@ from machine import Pin, I2C
 from ssd1306 import SSD1306_I2C
 def run_program():
     fifo = Filefifo(10, name = 'sinewave_250Hz_03.txt', repeat = False)
+    samples = []
     y1 = 0
     kprev = 0
     peaks = []
-    samples = []
+
 
     class Sample:
         def __init__ (self, value, time, index):
