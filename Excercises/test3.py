@@ -1,0 +1,110 @@
+from filefifo import Filefifo
+def run_program():
+    fifo = Filefifo(10, name = 'hr_capture03_250Hz.txt', repeat = False)
+    peaks = []
+    samples = []
+    wait_window = 1000
+    ppi_window = 100
+    threshold = 0
+
+    def calculate_threshold(samples):
+        maxval = max(samples)
+        minval = min(samples)
+        '''for sample in samples:
+            if maxval == 0:
+                maxval = sample
+                minval = sample
+            if maxval < sample:
+                maxval = sample
+            elif minval > sample:
+                minval = sample
+        '''
+        
+        print("Maxval:", maxval)
+        print("Minval:", minval)
+        threshold = ((maxval + minval)/2) + (maxval-minval)*0.2
+        print("threshold:", threshold)
+
+        return threshold
+        
+    class Sample:
+        def __init__ (self, value, time, index):
+            self.value = value
+            self.time = time
+            self.index = index
+
+    samplediffs = []
+    timediffs = []
+    frequency = 0
+    def calculatePPI(peaks):
+        PPI = []
+        PPI_sum = 0
+        i = 0
+        for peak in peaks:
+            if i == 0:
+                i += 1
+            else:
+                samplediff = peak.index - peaks[i - 1].index
+                timediff = peak.time - peaks[i - 1].time
+                samplediffs.append(samplediff)
+                timediffs.append(timediff)
+                print(f"This is PPI:{timediff}   samples between:{samplediff}")
+                PPI.append(timediff)
+                PPI_sum += timediff
+                i += 1
+                
+        meanPPI = PPI_sum/len(PPI)
+        print("mean PPI:", meanPPI)
+        
+        frequency = 1/meanPPI
+        print(f"frequency: {frequency}Hz")
+        
+        HR = frequency * 60
+        print(f"Heart rate: {HR}BPM")
+        
+        return frequency
+
+
+
+    while True:
+        try:
+            data = fifo.get()
+        except:
+            break
+            
+        samples.append(data)
+        if len(samples) >= wait_window:
+            threshold = calculate_threshold(samples)
+            samples.pop(0)
+            i = 0
+            for sample in samples:
+                if i != 0 and samples[i -1] < threshold and sample > threshold:
+                    print("peak:", sample)
+                    peaks.append(Sample(sample, i * 0.004, i))
+                i += 1
+        if len(peaks) >= ppi_window:
+            print(peaks)
+            frequency = calculatePPI(peaks)
+            peaks.pop(0)
+    print()
+    print("---------------------------------------------------")
+    print()
+
+
+    # oled_refresh_rate_1_of_3
+    # Shows why calling show() for every pixel is slow (~30 ms each).
+
+    from machine import Pin, I2C
+    from ssd1306 import SSD1306_I2C
+
+    i2c = I2C(1, scl=Pin(15), sda=Pin(14), freq=400000)
+    oled = SSD1306_I2C(128, 64, i2c)
+    y = 0
+    for i in range(4):
+        i += 1
+        oled.text(f"{i})int:{int(samplediffs[i -1])}-{int(timediffs[i -1]*1000)}Ms", 0, y, 1)
+        y += 8
+
+    oled.text(f"freq: {frequency:.4f}Hz",0,y,1)
+    oled.show()
+run_program()
