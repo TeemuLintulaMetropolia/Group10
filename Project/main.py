@@ -1,82 +1,81 @@
+from hardware import Encoder, Button_handler, oled
 from machine import Pin, I2C
-from fifo import Fifo
 from led import Led
+import task3_2
+import Snake
 import time
-import micropython
-from ssd1306 import SSD1306_I2C
-micropython.alloc_emergency_exception_buf(200)
 
-class Encoder:
-    def __init__(self, rot_a, rot_b):
-        self.a = Pin(rot_a, mode = Pin.IN)
-        self.b = Pin(rot_b, mode = Pin.IN)
-        self.fifo = Fifo(30, typecode = 'i')
-        self.a.irq(handler = self.handler, trigger = Pin.IRQ_RISING, hard = True)
-    def handler(self, pin):
-        if self.b():
-            self.fifo.put(-1)
-        else:
-            self.fifo.put(1)
+class Menu_Item:
+    def __init__ (self, text, program):
+        self.text = text
+        self.program = program
 
-class Button_handler:
-    def __init__(self):
-        self.past_click = 0
-        self.delay = 200
-        self.fifo = Fifo(30, typecode = 'i')
+def run():
+    def print_screen(selected, anim_frame):
+        oled.fill(0)
+        for i, item in enumerate(Menu):
+            x = "   "
+            if selected == i:
+                if anim_frame == 0:
+                    x = "-> "
+                else:
+                    x = " ->"
+            oled.text(f"{x} {item.text}", 0, i + i*8 + 4, 1)
+        oled.show()
         
-    def handler(self, pin):
-        now = time.ticks_ms()
-        if time.ticks_diff(now, self.past_click) > self.delay:
-            if pin.value()== 0:
-                self.past_click = now
-                self.fifo.put(1)
-
-def toggle_selected_led(pin, value):
-    led = Led(pin)
-    led.value(value) 
+    #Every section in menu is created here and the function it starts is assigned
+    Menu = [
+    Menu_Item("Heart rate", task3_2),
+    Menu_Item("HRV analysis", task3_2),
+    Menu_Item("Kubios", task3_2),
+    Menu_Item("History", task3_2),
+    Menu_Item("Change user", task3_2),
+    Menu_Item("Snake", Snake)
+    ]
     
-i2c = I2C(1, scl=Pin(15), sda=Pin(14), freq=400000)
-oled = SSD1306_I2C(128, 64, i2c)
+    #button setup
+    button = Pin(12, mode = Pin.IN, pull = Pin.PULL_UP)
+    my_button = Button_handler()
+    button.irq(handler = my_button.handler, trigger = Pin.IRQ_FALLING, hard = True)
+    
+    #Rot encoder setup
+    rot = Encoder(10, 11)
+    selected = 0
+    steps = 0
+    
+    #Animation setup
+    anim_frame = 0
+    current_time = time.ticks_ms()
+    last_time = time.ticks_ms()
+    
+    print_screen(selected, 0)
+    
+    #Operating the menu using rot encoder and animating the arrow selector
+    while True:
+        current_time = time.ticks_ms()
+        if time.ticks_diff(current_time, last_time) >= 500:
+            anim_frame = 1 - anim_frame  # frame changes from 0 to 1 or the other way
+            last_time = current_time     
+            print_screen(selected, anim_frame) # Päivitetään näyttö animoituna
+        #Rotating changes the selection every 3 steps
+        if rot.fifo.has_data():
+            step = rot.fifo.get()
+            steps += step
+            selected = int(steps / 3)
+            if selected < 0:
+                selected = len(Menu) -1
+                steps = len(Menu) * 3
+            if selected > len(Menu) -1:
+                selected = 0
+                steps = 0
+            print_screen(selected, anim_frame)
+        #Button pressing logic runs the function assigned to the menu section
+        if my_button.fifo.has_data():
+            my_button.fifo.get()
+            Menu[selected].program.run()
+            print_screen(selected, anim_frame)
 
-def print_screen(selected, leds):
-    oled.fill(0)
-    for i in range(3):
-        x = " "
-        y = "OFF"
-        if selected == i:
-            x = "*"
-        if leds[i] == 1:
-            y = "ON"
-        oled.text(f"{x} Led{i+1} {y}", 36, 8*((i+1)*2), 1)
-    oled.show()
-
-button = Pin(12, mode = Pin.IN, pull = Pin.PULL_UP)
-my_button = Button_handler()
-button.irq(handler = my_button.handler, trigger = Pin.IRQ_FALLING, hard = True)
-rot = Encoder(10, 11)
-leds = [0, 0, 0]
-selected = 0
-print_screen(selected , leds)
-while True:
-    if rot.fifo.has_data():
-        step = rot.fifo.get()
-        selected = (selected + step) % 3
-        if selected < 0:
-            selected = 2
-        if selected > 2:
-            selected = 0
-        print_screen(selected , leds)
-    if my_button.fifo.has_data():
-        my_button.fifo.get()
-        print(selected)
-        if leds[selected] == 0:
-            leds[selected] = 1
-        else:
-            leds[selected] = 0
-        print(leds)
-        print_screen(selected , leds)
-        toggle_selected_led(22-selected, leds[selected])
-
+run()
 
 
 
