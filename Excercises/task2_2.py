@@ -2,7 +2,7 @@ from filefifo import Filefifo
 from machine import Pin, I2C
 from ssd1306 import SSD1306_I2C
 def run_program():
-    fifo = Filefifo(10, name = 'sinewave_250Hz_03.txt', repeat = False)
+    fifo = Filefifo(1000, name = 'hr_capture02_250Hz.txt', repeat = False)
     samples = []
     y1 = 0
     kprev = 0

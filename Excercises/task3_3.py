@@ -10,7 +10,7 @@ class Encoder:
     def __init__(self, rot_a, rot_b):
         self.a = Pin(rot_a, mode = Pin.IN)
         self.b = Pin(rot_b, mode = Pin.IN)
-        self.fifo = Fifo(30, typecode = 'i')
+        self.fifo = Fifo(300, typecode = 'i')
         self.a.irq(handler = self.handler, trigger = Pin.IRQ_RISING, hard = True)
     def handler(self, pin):
         if self.b():
@@ -64,10 +64,11 @@ while True:
         if x > len(samples) - 128:
             x = len(samples) - 128
         printsamples = []
-        for i in range(128):
-            printsamples.append(samples[x + i])
-        print_screen(printsamples, maxval, minval)
-            
+        if rot.fifo.has_data() == False:
+            for i in range(128):
+                printsamples.append(samples[x + i])
+            print_screen(printsamples, maxval, minval)
+                
             
             
     
