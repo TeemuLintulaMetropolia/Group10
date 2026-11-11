@@ -14,12 +14,12 @@ def run_program():
 
     window = []                  # recent samples, used for the threshold only
     threshold = None
-    sample_index = 0             # absolute position in the recording
+    sample_index = 0
     previous_value = None
     last_peak_index = None
     last_peak_time = None
-    interval_samples = []        # bounded list of recent gaps in samples
-    interval_times = []          # bounded list of recent gaps in seconds
+    interval_samples = []
+    interval_times = []
 
     def calculate_threshold(values):
         max_value = max(values)
@@ -91,5 +91,7 @@ def run_program():
     if frequency is not None:
         oled.text(f"freq: {frequency:.4f}Hz", 0, y, 1)
     oled.show()
+    print("Display updated")
+
 
 run_program()
