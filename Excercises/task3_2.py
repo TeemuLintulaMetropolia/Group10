@@ -6,6 +6,7 @@ import micropython
 from ssd1306 import SSD1306_I2C
 micropython.alloc_emergency_exception_buf(200)
 
+
 class Encoder:
     def __init__(self, rot_a, rot_b):
         self.a = Pin(rot_a, mode = Pin.IN)
