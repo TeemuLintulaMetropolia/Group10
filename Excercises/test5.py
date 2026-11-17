@@ -95,7 +95,6 @@ def run_program():
         # Make PPG signal
         if len(window) >= WAIT_WINDOW:
             PPG.run(value, previous_value, window, heart_rate)
-            print("Display updated")
             
         previous_value = value
 
