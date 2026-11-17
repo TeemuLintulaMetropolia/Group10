@@ -20,7 +20,7 @@ LED_PIN = 22              # external LED
 LED_ON_SAMPLES = 25       # keep the LED on for 25 samples (100 ms at 250 Hz)
 
 
-def run_program():
+def run():
     indicator = Led(LED_PIN)
     sensor = hardware.HR_sensor(26)
     
@@ -97,5 +97,3 @@ def run_program():
             PPG.run(value, previous_value, window, heart_rate)
             
         previous_value = value
-
-run_program()

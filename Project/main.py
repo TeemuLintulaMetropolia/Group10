@@ -1,7 +1,7 @@
 from hardware import Encoder, Button_handler, oled
 from machine import Pin, I2C
 from led import Led
-import task3_2, user_test
+import task3_2, user_test, test5
 import Snake
 import time
 
@@ -25,7 +25,7 @@ def run():
         
     #Every section in menu is created here and the function it starts is assigned
     Menu = [
-    Menu_Item("Heart rate", task3_2),
+    Menu_Item("Heart rate", test5),
     Menu_Item("HRV analysis", task3_2),
     Menu_Item("Kubios", task3_2),
     Menu_Item("History", task3_2),
