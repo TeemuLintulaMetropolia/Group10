@@ -10,17 +10,19 @@ import PPG_signal as PPG
 #from machine import Pin, I2C
 #from ssd1306 import SSD1306_I2C
 
-SAMPLE_PERIOD_S = 0.004   # 250 Hz sampling: 1 sample every 4 ms
-WAIT_WINDOW = 1000        # number of samples used to calculate the threshold
-THRESHOLD_UPDATE = 250    # recalculate the threshold every this many samples
-MIN_PEAK_GAP = 75        # ignore peaks closer than 75 samples (0.3 s, about 200 BPM max)
-REQUIRED_HR_VALUES = 20   # the program must output at least this many heart rate values
-PPI_WINDOW = 100          # keep only the most recent intervals
-LED_PIN = 22              # external LED
-LED_ON_SAMPLES = 25       # keep the LED on for 25 samples (100 ms at 250 Hz)
+
 
 
 def run():
+    SAMPLE_PERIOD_S = 0.004   # 250 Hz sampling: 1 sample every 4 ms
+    WAIT_WINDOW = 1000        # number of samples used to calculate the threshold
+    THRESHOLD_UPDATE = 250    # recalculate the threshold every this many samples
+    MIN_PEAK_GAP = 75        # ignore peaks closer than 75 samples (0.3 s, about 200 BPM max)
+    REQUIRED_HR_VALUES = 20   # the program must output at least this many heart rate values
+    PPI_WINDOW = 100          # keep only the most recent intervals
+    LED_PIN = 22              # external LED
+    LED_ON_SAMPLES = 25       # keep the LED on for 25 samples (100 ms at 250 Hz)
+    
     indicator = Led(LED_PIN)
     sensor = hardware.HR_sensor(26)
     
@@ -29,6 +31,8 @@ def run():
     threshold = None
     sample_index = 0            # position in the recording, counted from the start
     previous_value = None
+    max_value = 0
+    min_value = 0
     last_peak_index = None
     last_peak_time = None
     interval_samples = []       # recent gaps between beats, in samples
@@ -36,11 +40,12 @@ def run():
     heart_rate = 0
     heart_rates = []            # one heart rate value per detected beat (after the first)
     led_off_index = None        # sample index at which the LED should turn off
-
+    updatePPG = False
+    
     def calculate_threshold(values):
         max_value = max(values)
         min_value = min(values)
-        return ((max_value + min_value) / 2) + (max_value - min_value) * 0.2
+        return ((max_value + min_value) / 2) + (max_value - min_value) * 0.2, max_value, min_value
 
     while True:
         while sensor.fifo.has_data():
@@ -49,9 +54,10 @@ def run():
             window.append(value)
 
             if len(window) == WAIT_WINDOW:
-                threshold = calculate_threshold(window)
+                threshold, max_value, min_value = calculate_threshold(window)
                 window.clear()
-
+                updatePPG = True
+                
             # A beat is a rising crossing of the threshold.
             # Crossings closer than MIN_PEAK_GAP to the previous beat are ignored.
             if threshold is not None and previous_value is not None:
@@ -84,15 +90,14 @@ def run():
                 led_off_index = None
 
             sample_index += 1
-
-
+        
+        #Update the PPG signal
+        if updatePPG:
+            PPG.run(value, previous_value, max_value, min_value, heart_rate)
+        
         frequency = None
         if len(interval_times) > 0:
             mean_period = sum(interval_times) / len(interval_times)
             frequency = 1 / mean_period
-
-        # Make PPG signal
-        if len(window) >= WAIT_WINDOW:
-            PPG.run(value, previous_value, window, heart_rate)
             
         previous_value = value

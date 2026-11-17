@@ -7,12 +7,10 @@ import micropython
 micropython.alloc_emergency_exception_buf(200)
 
 
-def run(value, previous_value, window, HR):
+def run(value, previous_value, maxval, minval, HR):
     i2c = hardware.i2c
     oled = hardware.oled
     
-    maxval = max(window)
-    minval = min(window)
     previous = int(55 - ((previous_value - minval) / (maxval - minval) * 55))
     current = int(55 - ((value - minval) / (maxval - minval) * 55))
     if current == 0:
