@@ -47,11 +47,10 @@ def run():
             value = sensor.fifo.get()
             
             window.append(value)
-            if len(window) > WAIT_WINDOW:
-                window.pop(0)
 
-            if len(window) == WAIT_WINDOW and sample_index % THRESHOLD_UPDATE == 0:
+            if len(window) == WAIT_WINDOW:
                 threshold = calculate_threshold(window)
+                window.clear()
 
             # A beat is a rising crossing of the threshold.
             # Crossings closer than MIN_PEAK_GAP to the previous beat are ignored.
