@@ -4,8 +4,6 @@ import os
 class Users:
     def __init__(self, save_file="profiles.json"):
         self.save_file = save_file
-        self.temp_file = save_file + ".tmp"
-        self.name = "admin"
         self.gender = "binary"
         self.age = 30
         self.userlist = {}
@@ -13,40 +11,29 @@ class Users:
         self.load()
         
     def add_user(self, name, age, gender):
-        self.write_to_info()
         self.userlist[name] = {
             "age" : age,
             "gender" : gender
             }
-        self.becomming_current_user(name)
+        self.set_current_user(name)
         self.save()
         
-    def becomming_current_user(self, name):
+    def set_current_user(self, name):
         user_data = self.userlist[name]
         self.current_user = name
-        self.name = name
         self.age = user_data.get("age")
         self.gender = user_data.get("gender")
-        
-    def write_to_info(self):
-        self.userlist[self.current_user] = {
-            "age": self.age,
-            "gender": self.gender,
-        }
 
     def save(self):
-        self.write_to_info()
         data_to_save = {
             "recent": self.current_user,
             "profiles": self.userlist
             }
         
-        with open(self.temp_file, "w") as file:
+        with open(self.save_file, "w") as file:
             json.dump(data_to_save, file)
             file.flush()
-            
-        os.rename(self.temp_file, self.save_file)
-        
+                    
     def load(self):
         if self.save_file in os.listdir():
             try:
@@ -56,7 +43,7 @@ class Users:
                 self.userlist = saved.get("profiles", {})
                 self.current_user = saved.get("recent")
                 if self.current_user in self.userlist:
-                    self.becomming_current_user(self.current_user)
+                    self.set_current_user(self.current_user)
                     return
             except(ValueError, OSError):
                 print("Error")
@@ -66,8 +53,7 @@ class Users:
         if name not in self.userlist:
             print(f"Username {name} not found")
             return False
-        self.write_to_info()
-        self.becomming_current_user(name)
+        self.set_current_user(name)
         self.save()
         return True
     
