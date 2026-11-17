@@ -1,7 +1,7 @@
 from hardware import Encoder, Button_handler, oled
 from machine import Pin, I2C
 from led import Led
-import task3_2
+import task3_2, user_test
 import Snake
 import time
 
@@ -29,7 +29,7 @@ def run():
     Menu_Item("HRV analysis", task3_2),
     Menu_Item("Kubios", task3_2),
     Menu_Item("History", task3_2),
-    Menu_Item("Change user", task3_2),
+    Menu_Item("Change user", user_test),
     Menu_Item("Snake", Snake)
     ]
     
