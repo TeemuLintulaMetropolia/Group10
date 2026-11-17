@@ -1,7 +1,8 @@
-from machine import Pin, I2C
+from machine import Pin, I2C, ADC
 from fifo import Fifo
 from led import Led
 import time
+from piotimer import Piotimer
 import micropython
 from ssd1306 import SSD1306_I2C
 micropython.alloc_emergency_exception_buf(200)
@@ -33,3 +34,12 @@ class Button_handler:
             if pin.value()== 0:
                 self.past_click = now
                 self.fifo.put(1)
+                
+class HR_sensor:
+    def __init__(self, adc_pin):
+        self.adc = ADC(Pin(adc_pin, Pin.IN))
+        self.fifo = Fifo(size=100, typecode='i')
+        self.tmr = Piotimer(freq=250, callback=self.adc_callback)
+
+    def adc_callback(self, tmr):
+        self.fifo.put(self.adc.read_u16())
