@@ -59,11 +59,6 @@ class Users:
         return True
     def list_user(self):
         return list(self.userlist.keys())
-    
-    def show_user(self):
-        users = self.list_user()
-        for user in users:
-            print(user)
 
         
         
