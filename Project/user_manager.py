@@ -7,6 +7,7 @@ class Users:
         self.gender = "binary"
         self.age = 30
         self.userlist = {}
+        self.current_user = None
         
         self.load()
         
@@ -56,13 +57,14 @@ class Users:
         self.set_current_user(name)
         self.save()
         return True
+    def list_user(self):
+        return list(self.userlist.keys())
     
-        
+    def show_user(self):
+        users = self.list_user()
+        for user in users:
+            print(user)
 
-        
-        
-    
-        
         
         
         
