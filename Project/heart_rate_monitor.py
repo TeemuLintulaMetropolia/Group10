@@ -50,6 +50,8 @@ def run():
         max_value = max(values)
         min_value = min(values)
         return ((max_value + min_value) / 2) + (max_value - min_value) * 0.2, max_value, min_value
+    
+    PPG.calibrating()
 
     while True:
         while sensor.fifo.has_data():
@@ -102,7 +104,10 @@ def run():
         #Button pressing logic: stops the function
         if my_button.fifo.has_data():
             my_button.fifo.get()
-            break
+            if updatePPG:
+                while sensor.fifo.has_data():
+                    value = sensor.fifo.get()
+                break
             
         frequency = None
         if len(interval_times) > 0:

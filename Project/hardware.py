@@ -40,6 +40,8 @@ class HR_sensor:
         self.adc = ADC(Pin(adc_pin, Pin.IN))
         self.fifo = Fifo(size=100, typecode='i')
         self.tmr = Piotimer(freq=250, callback=self.adc_callback)
+        self.active = True
 
     def adc_callback(self, tmr):
-        self.fifo.put(self.adc.read_u16())
+        if self.active:
+            self.fifo.put(self.adc.read_u16())

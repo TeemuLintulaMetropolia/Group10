@@ -1,6 +1,3 @@
-from fifo import Fifo
-from piotimer import Piotimer
-from machine import ADC, Pin
 import hardware
 import micropython
 
@@ -23,4 +20,12 @@ def run(value, previous_value, maxval, minval, HR):
     oled.fill_rect(0, 55, 128, 9, 0)
     oled.text(f"HR: {HR}", 0, 56, 1)
     
+    oled.show()
+
+def calibrating():
+    i2c = hardware.i2c
+    oled = hardware.oled
+    
+    oled.fill(0)
+    oled.text("CALIBRATING...", 7, 32, 1)
     oled.show()
