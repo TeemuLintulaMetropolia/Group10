@@ -38,7 +38,7 @@ class Button_handler:
 class HR_sensor:
     def __init__(self, adc_pin):
         self.adc = ADC(Pin(adc_pin, Pin.IN))
-        self.fifo = Fifo(size=100, typecode='i')
+        self.fifo = Fifo(size=300, typecode='i')
         self.tmr = Piotimer(freq=250, callback=self.adc_callback)
         self.active = True
 
