@@ -4,11 +4,14 @@ from led import Led
 import heart_rate_monitor, user_test
 import Snake
 import time
+import micropython
+micropython.alloc_emergency_exception_buf(200)
 
 class Menu_Item:
     def __init__ (self, text, program):
         self.text = text
         self.program = program
+    
 
 def run():
     def print_screen(selected, anim_frame):
@@ -38,11 +41,20 @@ def run():
     my_button = Button_handler()
     button.irq(handler = my_button.handler, trigger = Pin.IRQ_FALLING, hard = True)
     
+    
     #Rot encoder setup
     rot = Encoder(10, 11)
     selected = 0
     steps = 0
     
+    def setup_pins(button, rot):
+            button = Pin(12, mode = Pin.IN, pull = Pin.PULL_UP)
+            button.irq(handler = my_button.handler, trigger = Pin.IRQ_FALLING, hard = True)
+            while my_button.fifo.has_data():
+                my_button.fifo.get()
+                
+            rot = Encoder(10, 11)
+                
     #Animation setup
     anim_frame = 0
     current_time = time.ticks_ms()
@@ -73,6 +85,9 @@ def run():
         if my_button.fifo.has_data():
             my_button.fifo.get()
             Menu[selected].program.run()
+            
+            #When the function ends it needs to reassign all of this again
+            setup_pins(button, rot)
             print_screen(selected, anim_frame)
 
 run()

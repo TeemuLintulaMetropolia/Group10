@@ -105,6 +105,7 @@ def run():
         if my_button.fifo.has_data():
             my_button.fifo.get()
             if updatePPG:
+                sensor.active = False
                 while sensor.fifo.has_data():
                     value = sensor.fifo.get()
                 break
