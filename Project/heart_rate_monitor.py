@@ -25,6 +25,10 @@ def run():
     
     indicator = Led(LED_PIN)
     sensor = hardware.HR_sensor(26)
+    #button setup
+    button = Pin(12, mode = Pin.IN, pull = Pin.PULL_UP)
+    my_button = hardware.Button_handler()
+    button.irq(handler = my_button.handler, trigger = Pin.IRQ_FALLING, hard = True)
     
     value = 0
     window = []                 # recent samples, used for the threshold only
@@ -95,6 +99,11 @@ def run():
         if updatePPG:
             PPG.run(value, previous_value, max_value, min_value, heart_rate)
         
+        #Button pressing logic: stops the function
+        if my_button.fifo.has_data():
+            my_button.fifo.get()
+            break
+            
         frequency = None
         if len(interval_times) > 0:
             mean_period = sum(interval_times) / len(interval_times)
