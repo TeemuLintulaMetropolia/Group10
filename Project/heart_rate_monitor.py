@@ -43,6 +43,7 @@ def run():
     interval_times = [] 		# recent gaps between beats, in seconds
     heart_rate = 0
     heart_rates = []            # one heart rate value per detected beat (after the first)
+    heart_rate_avg = 0
     led_off_index = None        # sample index at which the LED should turn off
     updatePPG = False
     
@@ -86,6 +87,11 @@ def run():
 
                             heart_rate = 60 / gap_time
                             heart_rates.append(heart_rate)
+                            if len(heart_rates) <= 6:
+                                for bpm in heart_rates:
+                                    heart_rate_avg += bpm/6
+                                    heart_rates.clear()
+
 
                         last_peak_index = sample_index
                         last_peak_time = peak_time
@@ -99,7 +105,7 @@ def run():
         
         #Update the PPG signal
         if updatePPG:
-            PPG.run(value, previous_value, max_value, min_value, heart_rate)
+            PPG.run(value, previous_value, max_value, min_value, heart_rate_avg)
         
         #Button pressing logic: stops the function
         if my_button.fifo.has_data():
